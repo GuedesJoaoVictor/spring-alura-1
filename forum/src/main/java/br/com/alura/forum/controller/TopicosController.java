@@ -1,23 +1,49 @@
 package br.com.alura.forum.controller;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import br.com.alura.forum.controller.dto.TopicoFormDto;
+import br.com.alura.forum.repository.CursoRepository;
+import br.com.alura.forum.repository.TopicoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import br.com.alura.forum.controller.dto.TopicoDto;
 import br.com.alura.forum.modelo.Curso;
 import br.com.alura.forum.modelo.Topico;
+import org.springframework.web.util.UriComponentsBuilder;
 
-@RestController
+@Controller
+@RequestMapping("/topicos")
 public class TopicosController {
-	
-	@RequestMapping("/topicos")
-	public List<TopicoDto> lista() {
-		Topico topico = new Topico("Dúvida", "Dúvida com Spring", new Curso("Spring", "Programação"));
-		
-		return TopicoDto.converter(Arrays.asList(topico, topico, topico));
+
+	@Autowired
+	private TopicoRepository repository;
+
+	@Autowired
+	private CursoRepository cursoRepository;
+
+	@GetMapping
+	public List<TopicoDto> lista(String nomeCurso) {
+		List<Topico> topicos = repository.findAll();
+		if (Objects.isNull(nomeCurso)) {
+			return TopicoDto.converter(topicos);
+		}
+		topicos = repository.findByCursoNome(nomeCurso);
+		return TopicoDto.converter(topicos);
+	}
+
+	@PostMapping
+	public ResponseEntity<TopicoDto> cadastrar(@RequestBody TopicoFormDto topicoFormDto, UriComponentsBuilder uriBuilder) {
+		Topico topico = repository.save(topicoFormDto.converter(cursoRepository));
+		URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+		return ResponseEntity.created(uri).body(new TopicoDto(topico));
 	}
 
 }
