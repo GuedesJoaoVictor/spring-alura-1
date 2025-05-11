@@ -1,27 +1,28 @@
 package br.com.alura.forum.controller;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+import br.com.alura.forum.controller.dto.AtualizarTopicoFormDto;
+import br.com.alura.forum.controller.dto.DetalhesTopicoDto;
 import br.com.alura.forum.controller.dto.TopicoFormDto;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.alura.forum.controller.dto.TopicoDto;
-import br.com.alura.forum.modelo.Curso;
 import br.com.alura.forum.modelo.Topico;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-@Controller
+@RestController
 @RequestMapping("/topicos")
 public class TopicosController {
 
@@ -48,4 +49,17 @@ public class TopicosController {
 		return ResponseEntity.created(uri).body(new TopicoDto(topico));
 	}
 
+	@GetMapping("/{id}")
+	public DetalhesTopicoDto detalhar(@PathVariable Long id) {
+		Optional<Topico> topico = repository.findById(id);
+        return topico.map(DetalhesTopicoDto::new).orElse(null);
+    }
+
+	@PatchMapping("/{id}")
+	@Transactional
+	public 	ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizarTopicoFormDto dto) {
+		Topico topico = dto.atualizar(id, repository);
+
+		return ResponseEntity.status(HttpStatus.OK).body(new TopicoDto(topico));
+	}
 }
