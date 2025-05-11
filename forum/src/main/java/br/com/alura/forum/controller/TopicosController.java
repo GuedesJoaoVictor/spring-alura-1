@@ -65,7 +65,11 @@ public class TopicosController {
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Boolean> deletar(@PathVariable Long id) {
-		repository.deleteById(id);
-		return ResponseEntity.ok().body(Boolean.TRUE);
+		Optional<Topico> topico = repository.findById(id);
+		if(topico.isPresent()) {
+			repository.deleteById(id);
+			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Boolean.FALSE);
 	}
 }
