@@ -3,11 +3,17 @@ package br.com.alura.forum.controller.dto;
 import br.com.alura.forum.modelo.Curso;
 import br.com.alura.forum.modelo.Topico;
 import br.com.alura.forum.repository.CursoRepository;
-import br.com.alura.forum.repository.TopicoRepository;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class TopicoFormDto {
+    @NotNull @NotEmpty @Size(min = 5)
     private String titulo;
+    @NotNull @NotEmpty @Size(min = 10)
     private String mensagem;
+    @NotNull @NotEmpty
     private String nomeCurso;
 
     public TopicoFormDto(String titulo, String mensagem, String nomeCurso) {
