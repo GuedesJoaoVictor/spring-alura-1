@@ -62,4 +62,10 @@ public class TopicosController {
 
 		return ResponseEntity.status(HttpStatus.OK).body(new TopicoDto(topico));
 	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Boolean> deletar(@PathVariable Long id) {
+		repository.deleteById(id);
+		return ResponseEntity.ok().body(Boolean.TRUE);
+	}
 }
