@@ -11,6 +11,8 @@ import br.com.alura.forum.controller.dto.TopicoFormDto;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,7 @@ public class TopicosController {
 	private CursoRepository cursoRepository;
 
 	@GetMapping
+	@Cacheable(value = "listaTopicos")
 	public Page<TopicoDto> lista(@RequestParam(required = false) String nomeCurso,
 		@PageableDefault(sort = "id", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
 
@@ -50,6 +53,7 @@ public class TopicosController {
 	}
 
 	@PostMapping
+	@CacheEvict(value = "listaTopicos", allEntries = true)
 	public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoFormDto topicoFormDto, UriComponentsBuilder uriBuilder) {
 		Topico topico = repository.save(topicoFormDto.converter(cursoRepository));
 		URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
